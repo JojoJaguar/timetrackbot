@@ -8,6 +8,7 @@ from clickupython import client
 env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
+
 # Clickup app configs
 API_KEY = os.environ.get("CLICKUP_TOKEN")
 clickup_client = client.ClickUpClient(API_KEY)
