@@ -26,24 +26,38 @@ channel_members_email = []
 def scrumHasStarted(ack, client):
     ack()
 
+    usersDictionary = {}
+
     members = app.client.conversations_members(channel="C03N6B94HL5")
     for member in members["members"]:
         profile = app.client.users_info(user=member)
         if (
             profile["user"]["name"] != "timetrackbot"
-        ):  # In order to prevent the scraping bots user info since bolt gives error
+        ):  # In order to prevent the scraping bot's user info since bolt gives an error
             channel_member_email = profile["user"]["profile"]["email"]
-            channel_members_email.append(channel_member_email)
+            channel_members_email.append(
+                channel_member_email
+            )  # this could be unnecessary after implementing dicts
+            newUserDictName = f'user{members["members"].index(member)}'
+            usersDictionary = {newUserDictName: {"email": channel_member_email}}
 
+            # creating a nested dict
+            # user0 = { email = tahir@analyticahouse.com ,
+            # name = Tahir Gündüz,
+            # clickup_user_ID = ’123456’
+            # time_track = 129.5 }
+    print(usersDictionary)
     print(channel_members_email)
 
     # scraping user ID's and create a dictionary as key is email adress and value is ID
     users_clickup = clickup_client.get_teams()
-    usersDictionary = {}
-    for user in users_clickup.teams[0].members:
-        for email in channel_members_email:
-            if user.user.email == email:
-                usersDictionary[f"{email}"] = user.user.id
+
+    for user in users_clickup.teams[
+        0
+    ].members:  # looking all members to extrack e mails from clickup
+        for user in usersDictionary:  # looking all emails in user dictionary
+            if user.user.email == user["email"]:  # matching if emails above match
+                usersDictionary = {"userID": user.user.id}
 
     print(usersDictionary)
 
